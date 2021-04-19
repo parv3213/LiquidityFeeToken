@@ -698,15 +698,16 @@ contract BEAK is Context, IERC20, Ownable {
     uint256 private _tTotal = 100000000000 * 10**9;
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
     uint256 private _tFeeTotal;
+    uint256 public feeStartTime = 1618898299; // speicify the epoch for starting fee
 
     string private _name = "Beak Finance";
     string private _symbol = "BEAK";
     uint8 private _decimals = 9;
     
-    uint256 public _taxFee = 4;
+    uint256 public _taxFee = 3;
     uint256 private _previousTaxFee = _taxFee;
     
-    uint256 public _liquidityFee = 6;
+    uint256 public _liquidityFee = 3;
     uint256 private _previousLiquidityFee = _liquidityFee;
 
     IUniswapV2Router02 public immutable uniswapV2Router;
@@ -1027,6 +1028,11 @@ contract BEAK is Context, IERC20, Ownable {
         
         //if any account belongs to _isExcludedFromFee account then remove the fee
         if(_isExcludedFromFee[from] || _isExcludedFromFee[to]){
+            takeFee = false;
+        }
+        
+        //if time now if less then feeStartTime then remove the fee
+        if(feeStartTime >= now){
             takeFee = false;
         }
         

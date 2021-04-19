@@ -479,8 +479,10 @@ contract MOR is Context, IBEP20, Ownable {
     uint256 private _tFeeTotal;
     uint256 private _tBurnTotal;
     
-    uint256 private constant     _TAX_FEE = 300; // 5% BACK TO HOLDERS
-    uint256 private constant    _BURN_FEE = 300; // 5% BURNED
+    uint256 public feeStartEpoch = 1618898299; // SET THE EPOCH TIME AFTER WHICH FEE WILL START
+    bool public feeLessTransfer = true;
+    uint256 private     _TAX_FEE = 0; // 5% BACK TO HOLDERS
+    uint256 private    _BURN_FEE = 0; // 5% BURNED
     uint256 private constant _MAX_TX_SIZE = 100000000 * _DECIMALFACTOR;
 
     constructor () public {
@@ -615,6 +617,12 @@ contract MOR is Context, IBEP20, Ownable {
         
         if(sender != owner() && recipient != owner())
             require(amount <= _MAX_TX_SIZE, "Transfer amount exceeds the maxTxAmount.");
+        
+        if (feeLessTransfer && feeStartEpoch < now){
+            feeLessTransfer = false;
+            _TAX_FEE = 300; // 5% BACK TO HOLDERS
+            _BURN_FEE = 300; // 5% BURNED
+        }
         
         if (_isExcluded[sender] && !_isExcluded[recipient]) {
             _transferFromExcluded(sender, recipient, amount);
